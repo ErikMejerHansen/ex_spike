@@ -64,6 +64,7 @@ defmodule ExSPIKE.MixProject do
   defp docs do
     [
       main: "readme",
+      source_ref: "v#{@version}",
       extras: ["README.md", "notebooks/spike_prime.livemd"],
       groups_for_modules: [
         Codec: [ExSPIKE, ExSPIKE.Message, ExSPIKE.Device, ExSPIKE.Messages],
