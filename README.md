@@ -108,7 +108,7 @@ mix docs      # generate documentation
 
 ### Spec
 
-The requirements are in [spec/ex_spike.spec.md](spec/ex_spike.spec.md),
+The requirements are in [spec/ex_spike.spec.md](https://github.com/ErikMejerHansen/ex_spike/blob/main/spec/ex_spike.spec.md),
 each with an ID such as `ARCH-4`. Tests declare the requirements they
 verify with a tag:
 
@@ -118,9 +118,9 @@ test "when the application starts, then it starts no processes" do
 ```
 
 Requirements that tests can't fully cover are reviewed by hand and
-recorded in [spec/reviews.exs](spec/reviews.exs).
+recorded in [spec/reviews.exs](https://github.com/ErikMejerHansen/ex_spike/blob/main/spec/reviews.exs).
 
-`mix spec` runs the tests and writes [spec/STATUS.md](spec/STATUS.md),
+`mix spec` runs the tests and writes [spec/STATUS.md](https://github.com/ErikMejerHansen/ex_spike/blob/main/spec/STATUS.md),
 which lists each requirement as tested, reviewed, failing or open.
 Commit it together with spec and code changes. CI fails when it is out
 of date.
@@ -142,4 +142,4 @@ approval before each publish.
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](https://github.com/ErikMejerHansen/ex_spike/blob/main/LICENSE).

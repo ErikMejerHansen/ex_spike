@@ -28,7 +28,7 @@ jobs:
           echo "::error::Publishing is only allowed from main, not ${{ github.ref_name }}."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: erlef/setup-beam@v1
         with:
@@ -68,7 +68,7 @@ jobs:
       - name: Build package and docs
         run: |
           mix hex.build
-          mix docs
+          mix docs --warnings-as-errors
 
       - name: Publish to Hex
         if: ${{ !inputs.dry_run }}

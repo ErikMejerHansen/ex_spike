@@ -23,14 +23,14 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             deps
@@ -55,3 +55,9 @@ jobs:
             echo "::error file=spec/STATUS.md::spec/STATUS.md is out of date. Run mix spec and commit the result."
             exit 1
           fi
+
+      - name: Check docs build without warnings
+        if: matrix.lint
+        env:
+          MIX_ENV: dev
+        run: mix docs --warnings-as-errors
