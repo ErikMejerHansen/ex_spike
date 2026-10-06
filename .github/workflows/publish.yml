@@ -36,7 +36,15 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Check what is being published
+        env:
+          # Only whether the secret is set, not its value
+          HAS_HEX_API_KEY: ${{ secrets.HEX_API_KEY != '' }}
         run: |
+          if [ "$HAS_HEX_API_KEY" != "true" ]; then
+            echo "::error::No HEX_API_KEY secret. Add it to the hex environment under Settings → Environments. Hex needs it even for a dry run."
+            exit 1
+          fi
+
           if [ "$GITHUB_REF" != "refs/heads/main" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
             echo "::error::Releases are published from main. Run the workflow on main, or as a dry run."
             exit 1
@@ -79,9 +87,12 @@ jobs:
       - name: Check docs
         run: mix docs --warnings-as-errors
 
+      # Hex needs an authenticated user even for a dry run
       - name: Check package (dry run)
         if: inputs.dry_run
         run: mix hex.publish --dry-run --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
       - name: Publish package and docs
         if: ${{ !inputs.dry_run }}

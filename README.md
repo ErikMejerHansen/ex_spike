@@ -133,8 +133,8 @@ of date.
 
 The workflow runs all checks, publishes the package and docs to Hex,
 and tags the release `vX.Y.Z`. It needs a `HEX_API_KEY` secret in the
-`hex` environment (**Settings → Environments**), where you can also add
-required reviewers.
+`hex` environment (**Settings → Environments**), also for dry runs. You
+can add required reviewers there too.
 
 ## License
 
