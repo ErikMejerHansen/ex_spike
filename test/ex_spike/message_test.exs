@@ -1,6 +1,8 @@
 defmodule ExSPIKE.MessageTest do
   use ExUnit.Case, async: true
 
+  @moduletag spec: "ARCH-5"
+
   alias ExSPIKE.Device
   alias ExSPIKE.Message
 
@@ -58,6 +60,8 @@ defmodule ExSPIKE.MessageTest do
     name = message.__struct__ |> Module.split() |> List.last()
 
     describe "Given a #{name}" do
+      @describetag spec: ["ARCH-5", "ARCH-7", "ARCH-8"]
+
       test "when encoded, then it produces the documented bytes" do
         assert Message.encode(unquote(Macro.escape(message))) == unquote(bytes)
       end
@@ -68,10 +72,12 @@ defmodule ExSPIKE.MessageTest do
     end
   end
 
-  test "every message type in the protocol is covered" do
-    covered = Enum.map(@examples, fn {message, _} -> Message.id(message) end)
-    assert Enum.sort(covered) == Enum.sort(Enum.uniq(covered))
-    assert length(covered) == 26
+  describe "Given the examples above" do
+    test "when counted, then every message type in the protocol is covered" do
+      covered = Enum.map(@examples, fn {message, _} -> Message.id(message) end)
+      assert Enum.sort(covered) == Enum.sort(Enum.uniq(covered))
+      assert length(covered) == 26
+    end
   end
 
   describe "Given a name that is too long" do
@@ -105,6 +111,8 @@ defmodule ExSPIKE.MessageTest do
   end
 
   describe "Given an enum value the library does not know" do
+    @describetag spec: "ARCH-8"
+
     test "when decoded, then the raw integer is kept" do
       assert Message.decode(<<0x1F, 0x07>>) == {:ok, %Message.ProgramFlowResponse{status: 0x07}}
     end
@@ -116,6 +124,8 @@ defmodule ExSPIKE.MessageTest do
   end
 
   describe "Given bytes that are not a valid message" do
+    @describetag spec: "ARCH-8"
+
     test "when empty, then decoding reports :empty" do
       assert Message.decode(<<>>) == {:error, :empty}
     end

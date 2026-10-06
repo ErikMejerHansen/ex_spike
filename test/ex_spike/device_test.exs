@@ -1,6 +1,8 @@
 defmodule ExSPIKE.DeviceTest do
   use ExUnit.Case, async: true
 
+  @moduletag spec: ["ARCH-5", "ARCH-8"]
+
   alias ExSPIKE.Device
 
   @examples [

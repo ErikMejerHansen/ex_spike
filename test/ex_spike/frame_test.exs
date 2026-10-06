@@ -1,6 +1,8 @@
 defmodule ExSPIKE.FrameTest do
   use ExUnit.Case, async: true
 
+  @moduletag spec: "ARCH-5"
+
   alias ExSPIKE.{COBS, Frame}
 
   # Test vectors from the official reference implementation:
@@ -45,6 +47,8 @@ defmodule ExSPIKE.FrameTest do
   end
 
   describe "Given any message" do
+    @describetag spec: ["ARCH-5", "ARCH-8"]
+
     setup do
       # Every byte value, and runs long enough to cross the 84 byte block limit.
       messages =
