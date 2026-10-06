@@ -125,6 +125,21 @@ which lists each requirement as tested, reviewed, failing or open.
 Commit it together with spec and code changes. CI fails when it is out
 of date.
 
+### Releasing
+
+Publishing to Hex is started by hand:
+
+1. Bump `@version` in `mix.exs` and merge it to `main`.
+2. In GitHub, open **Actions → Publish to Hex → Run workflow**. Leave
+   **Dry run** ticked to build and check the package and docs first.
+3. Run it again with **Dry run** unticked to publish. The workflow runs
+   the tests, publishes to Hex and tags the commit as `v<version>`.
+
+It needs a Hex API key (`mix hex.user key generate`) stored as the
+`HEX_API_KEY` secret of the `hex` environment, under **Settings →
+Environments**. Add required reviewers to that environment to require an
+approval before each publish.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

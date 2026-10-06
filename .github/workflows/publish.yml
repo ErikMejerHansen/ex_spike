@@ -1,0 +1,83 @@
+name: Publish to Hex
+
+# Run by hand from the Actions tab: "Publish to Hex" -> "Run workflow".
+# Publishes the version in mix.exs from main and tags it as v<version>.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: build and check the package and docs, but don't publish"
+        type: boolean
+        default: true
+
+concurrency: publish
+
+jobs:
+  publish:
+    name: ${{ inputs.dry_run && 'Dry run' || 'Publish' }}
+    runs-on: ubuntu-latest
+    # Holds the HEX_API_KEY secret. Add required reviewers to it in the
+    # repository settings to require an approval before publishing.
+    environment: hex
+    permissions:
+      contents: write
+    steps:
+      - name: Only publish from main
+        if: ${{ !inputs.dry_run && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "::error::Publishing is only allowed from main, not ${{ github.ref_name }}."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "27"
+
+      - name: Read version from mix.exs
+        id: version
+        run: |
+          version=$(sed -n 's/^  @version "\(.*\)"$/\1/p' mix.exs)
+          if [ -z "$version" ]; then
+            echo "::error file=mix.exs::Could not find @version in mix.exs."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Version: $version"
+
+      - name: Check the version is not already tagged
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.version.outputs.version }}"; then
+            echo "::error file=mix.exs::v${{ steps.version.outputs.version }} is already tagged. Bump @version in mix.exs first."
+            exit 1
+          fi
+
+      - run: mix deps.get
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+      - name: Run tests
+        env:
+          MIX_ENV: test
+        run: |
+          mix compile --warnings-as-errors
+          mix test
+
+      - name: Build package and docs
+        run: |
+          mix hex.build
+          mix docs
+
+      - name: Publish to Hex
+        if: ${{ !inputs.dry_run }}
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --yes
+
+      - name: Tag the release
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
