@@ -76,6 +76,16 @@ program = "print('Hello from Elixir')"
 
 Send each frame and wait for the hub's response before sending the next.
 
+## Livebook
+
+[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FErikMejerHansen%2Fex_spike%2Fblob%2Fmain%2Fnotebooks%2Fspike_prime.livemd)
+
+[notebooks/spike_prime.livemd](notebooks/spike_prime.livemd) connects to a
+hub over Web Bluetooth with
+[KinoWebBluetooth](https://github.com/ErikMejerHansen/kino_web_bluetooth),
+asks it for its info, shows its console output and sensor readings, and
+uploads and runs a program.
+
 ## Modules
 
 | Module             | Purpose                                                 |
