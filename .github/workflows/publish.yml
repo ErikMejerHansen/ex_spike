@@ -1,83 +1,104 @@
 name: Publish to Hex
 
-# Run by hand from the Actions tab: "Publish to Hex" -> "Run workflow".
-# Publishes the version in mix.exs from main and tags it as v<version>.
+# Manually triggered: Actions → "Publish to Hex" → Run workflow.
+#
+# Needs a HEX_API_KEY secret in the "hex" environment, created with
+# `mix hex.user key generate --key-name github-actions --permission api:write`.
+
 on:
   workflow_dispatch:
     inputs:
+      version:
+        description: Version to publish. Must match @version in mix.exs, e.g. 0.1.0
+        required: true
+        type: string
       dry_run:
-        description: "Dry run: build and check the package and docs, but don't publish"
+        description: Dry run. Build and check the package and docs without publishing
         type: boolean
-        default: true
+        default: false
 
+# Never publish twice at the same time
 concurrency: publish
 
 jobs:
   publish:
-    name: ${{ inputs.dry_run && 'Dry run' || 'Publish' }}
+    name: Publish ${{ inputs.version }}${{ inputs.dry_run && ' (dry run)' || '' }}
     runs-on: ubuntu-latest
-    # Holds the HEX_API_KEY secret. Add required reviewers to it in the
-    # repository settings to require an approval before publishing.
+    # Lets you add protection rules, like required reviewers, in
+    # Settings → Environments → hex
     environment: hex
     permissions:
+      # To push the release tag
       contents: write
+    env:
+      VERSION: ${{ inputs.version }}
     steps:
-      - name: Only publish from main
-        if: ${{ !inputs.dry_run && github.ref != 'refs/heads/main' }}
-        run: |
-          echo "::error::Publishing is only allowed from main, not ${{ github.ref_name }}."
-          exit 1
+      - uses: actions/checkout@v5
 
-      - uses: actions/checkout@v4
+      - name: Check what is being published
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
+            echo "::error::Releases are published from main. Run the workflow on main, or as a dry run."
+            exit 1
+          fi
+
+          mix_version=$(sed -n 's/^  @version "\(.*\)"$/\1/p' mix.exs)
+          if [ "$VERSION" != "$mix_version" ]; then
+            echo "::error file=mix.exs::Requested version $VERSION does not match @version \"$mix_version\" in mix.exs."
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" > /dev/null; then
+            echo "::error::Tag v$VERSION already exists. Bump @version in mix.exs first."
+            exit 1
+          fi
 
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: "1.18"
           otp-version: "27"
 
-      - name: Read version from mix.exs
-        id: version
-        run: |
-          version=$(sed -n 's/^  @version "\(.*\)"$/\1/p' mix.exs)
-          if [ -z "$version" ]; then
-            echo "::error file=mix.exs::Could not find @version in mix.exs."
-            exit 1
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Version: $version"
-
-      - name: Check the version is not already tagged
-        run: |
-          if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.version.outputs.version }}"; then
-            echo "::error file=mix.exs::v${{ steps.version.outputs.version }} is already tagged. Bump @version in mix.exs first."
-            exit 1
-          fi
-
       - run: mix deps.get
 
       - name: Check formatting
         run: mix format --check-formatted
 
-      - name: Run tests
-        env:
-          MIX_ENV: test
-        run: |
-          mix compile --warnings-as-errors
-          mix test
+      - name: Compile
+        run: mix compile --warnings-as-errors
 
-      - name: Build package and docs
-        run: |
-          mix hex.build
-          mix docs
+      - name: Run tests and update spec status
+        run: mix spec
 
-      - name: Publish to Hex
+      - name: Check spec/STATUS.md is up to date
+        run: |
+          if ! git diff --exit-code spec/STATUS.md; then
+            echo "::error file=spec/STATUS.md::spec/STATUS.md is out of date. Run mix spec and commit the result."
+            exit 1
+          fi
+
+      - name: Check docs
+        run: mix docs --warnings-as-errors
+
+      - name: Check package (dry run)
+        if: inputs.dry_run
+        run: mix hex.publish --dry-run --yes
+
+      - name: Publish package and docs
         if: ${{ !inputs.dry_run }}
+        run: mix hex.publish --yes
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-        run: mix hex.publish --yes
 
-      - name: Tag the release
+      - name: Tag release
         if: ${{ !inputs.dry_run }}
         run: |
-          git tag "v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+
+      - name: Summary
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "Dry run of ex_spike $VERSION passed. Nothing was published." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Published [ex_spike $VERSION](https://hex.pm/packages/ex_spike/$VERSION) ([docs](https://hexdocs.pm/ex_spike/$VERSION)) and tagged v$VERSION." >> "$GITHUB_STEP_SUMMARY"
+          fi

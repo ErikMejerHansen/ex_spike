@@ -108,7 +108,7 @@ mix docs      # generate documentation
 
 ### Spec
 
-The requirements are in [spec/ex_spike.spec.md](spec/ex_spike.spec.md),
+The requirements are in [spec/ex_spike.spec.md](https://github.com/ErikMejerHansen/ex_spike/blob/main/spec/ex_spike.spec.md),
 each with an ID such as `ARCH-4`. Tests declare the requirements they
 verify with a tag:
 
@@ -118,28 +118,24 @@ test "when the application starts, then it starts no processes" do
 ```
 
 Requirements that tests can't fully cover are reviewed by hand and
-recorded in [spec/reviews.exs](spec/reviews.exs).
+recorded in [spec/reviews.exs](https://github.com/ErikMejerHansen/ex_spike/blob/main/spec/reviews.exs).
 
-`mix spec` runs the tests and writes [spec/STATUS.md](spec/STATUS.md),
+`mix spec` runs the tests and writes [spec/STATUS.md](https://github.com/ErikMejerHansen/ex_spike/blob/main/spec/STATUS.md),
 which lists each requirement as tested, reviewed, failing or open.
 Commit it together with spec and code changes. CI fails when it is out
 of date.
 
 ### Releasing
 
-Publishing to Hex is started by hand:
+1. Bump `@version` in `mix.exs` and merge to `main`.
+2. In GitHub, run **Actions → Publish to Hex** on `main` with that
+   version. Tick *Dry run* first to check the package without publishing.
 
-1. Bump `@version` in `mix.exs` and merge it to `main`.
-2. In GitHub, open **Actions → Publish to Hex → Run workflow**. Leave
-   **Dry run** ticked to build and check the package and docs first.
-3. Run it again with **Dry run** unticked to publish. The workflow runs
-   the tests, publishes to Hex and tags the commit as `v<version>`.
-
-It needs a Hex API key (`mix hex.user key generate`) stored as the
-`HEX_API_KEY` secret of the `hex` environment, under **Settings →
-Environments**. Add required reviewers to that environment to require an
-approval before each publish.
+The workflow runs all checks, publishes the package and docs to Hex,
+and tags the release `vX.Y.Z`. It needs a `HEX_API_KEY` secret in the
+`hex` environment (**Settings → Environments**), where you can also add
+required reviewers.
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](https://github.com/ErikMejerHansen/ex_spike/blob/main/LICENSE).
