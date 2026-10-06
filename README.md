@@ -92,8 +92,28 @@ Send each frame and wait for the hub's response before sending the next.
 
 ```sh
 mix test      # BDD style tests and doctests
+mix spec      # tests, plus writes spec/STATUS.md
 mix docs      # generate documentation
 ```
+
+### Spec
+
+The requirements are in [spec/ex_spike.spec.md](spec/ex_spike.spec.md),
+each with an ID such as `ARCH-4`. Tests declare the requirements they
+verify with a tag:
+
+```elixir
+@tag spec: "ARCH-4"
+test "when the application starts, then it starts no processes" do
+```
+
+Requirements that tests can't fully cover are reviewed by hand and
+recorded in [spec/reviews.exs](spec/reviews.exs).
+
+`mix spec` runs the tests and writes [spec/STATUS.md](spec/STATUS.md),
+which lists each requirement as tested, reviewed, failing or open.
+Commit it together with spec and code changes. CI fails when it is out
+of date.
 
 ## License
 

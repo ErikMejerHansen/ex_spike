@@ -1,6 +1,8 @@
 defmodule ExSPIKE.MessagesTest do
   use ExUnit.Case, async: true
 
+  @moduletag spec: "ARCH-6"
+
   alias ExSPIKE.{CRC, Message, Messages}
 
   describe "Given the convenience functions" do

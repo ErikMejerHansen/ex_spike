@@ -8,9 +8,11 @@ defmodule ExSPIKE.MixProject do
     [
       app: :ex_spike,
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.15",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      aliases: aliases(),
       description: description(),
       package: package(),
       name: "ExSPIKE",
@@ -19,13 +21,27 @@ defmodule ExSPIKE.MixProject do
     ]
   end
 
+  def cli do
+    [preferred_envs: [spec: :test]]
+  end
+
   def application do
     [extra_applications: []]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_env), do: ["lib"]
+
   defp deps do
     [
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      # Runs the tests and writes spec/STATUS.md
+      spec: ["test --formatter ExUnit.CLIFormatter --formatter ExSPIKE.SpecFormatter"]
     ]
   end
 

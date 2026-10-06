@@ -4,6 +4,8 @@ defmodule ExSPIKETest do
   alias ExSPIKE.{Device, Message, Messages}
 
   describe "Given a client talking to a hub" do
+    @describetag spec: ["ARCH-6", "ARCH-8"]
+
     test "when it sends an InfoRequest, then the hub can decode it" do
       frame = ExSPIKE.encode(Messages.info_request())
 
@@ -35,6 +37,8 @@ defmodule ExSPIKETest do
   end
 
   describe "Given a message written as a raw bitstring" do
+    @describetag spec: "ARCH-7"
+
     test "when encoded, then it produces the same frame as the struct" do
       assert ExSPIKE.encode(<<0x1E, 0x00, 0x05>>) == ExSPIKE.encode(Messages.start_program(5))
     end
@@ -46,6 +50,8 @@ defmodule ExSPIKETest do
   end
 
   describe "Given BLE notifications that split and join frames arbitrarily" do
+    @describetag spec: ["ARCH-5", "ARCH-8"]
+
     setup do
       messages = [
         %Message.ConsoleNotification{text: "Hello from the hub"},
@@ -90,12 +96,16 @@ defmodule ExSPIKETest do
   end
 
   describe "Given a corrupted frame" do
+    @describetag spec: "ARCH-8"
+
     test "when decoded, then an error is returned" do
       assert {:error, _} = ExSPIKE.decode(<<0x01, 0x01, 0x02>>)
     end
   end
 
   describe "Given the project documentation" do
+    @describetag spec: "DOC-2"
+
     test "when read, then it states there is no affiliation with The LEGO Group" do
       {:docs_v1, _, _, _, %{"en" => moduledoc}, _, _} = Code.fetch_docs(ExSPIKE)
 
