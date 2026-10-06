@@ -2,8 +2,8 @@
 
 ```elixir
 Mix.install([
-  {:ex_spike, github: "ErikMejerHansen/ex_spike"},
-  {:kino_web_bluetooth, github: "ErikMejerHansen/kino_web_bluetooth"}
+  {:ex_spike, "~> 0.1.0"},
+  {:kino_web_bluetooth, "~> 0.1.0"}
 ])
 ```
 
@@ -27,7 +27,7 @@ SPIKE App 3 firmware. Press the hub's Bluetooth button so it advertises.
 Evaluate the Smart Cell below, click **Connect** and pick your hub. The
 service UUID is already set to the SPIKE Prime service.
 
-<!-- livebook:{"attrs":"eyJkZXZpY2VfaWQiOiJibGUtc3Bpa2UtaHViIiwic2VydmljZV91dWlkIjoiMDAwMGZkMDItMDAwMC0xMDAwLTgwMDAtMDA4MDVmOWIzNGZiIiwidmFyaWFibGUiOiJodWJfZGV2aWNlIiwid3JpdGVzIjp7fX0=","chunks":null,"kind":"Elixir.KinoWebBluetooth.SmartCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJkZXZpY2VfaWQiOiJibGUtc3Bpa2UtaHViIiwic2VydmljZV91dWlkIjoiMDAwMGZkMDItMDAwMC0xMDAwLTgwMDAtMDA4MDVmOWIzNGZiIiwidmFyaWFibGUiOiJodWJfZGV2aWNlIiwid3JpdGVzIjp7fX0","chunks":null,"kind":"Elixir.KinoWebBluetooth.SmartCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 hub_device = KinoWebBluetooth.device("ble-spike-hub")
@@ -194,7 +194,7 @@ from hub import light_matrix
 print("Hello from Elixir")
 
 async def main():
-    await light_matrix.write("Hi!")
+    await light_matrix.write("Hi From Elixir!")
 
 runloop.run(main())
 """
